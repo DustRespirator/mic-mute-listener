@@ -62,7 +62,7 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
                     if (now - triggerTime > 200) {
                         triggerTime = now;
                         BOOL isMuted = ToggleMicMute();
-                        ShowOSDText(isMuted ? L"Mic Muted" : L"Mic Unmuted");
+                        ShowOSDText(isMuted ? L"Mic is muted" : L"Mic is unmuted");
                     }
                     break;
                 }
