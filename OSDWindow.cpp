@@ -1,4 +1,4 @@
-#define OSD_WIDTH  240
+#define OSD_WIDTH 240
 #define OSD_HEIGHT 100
 #define OSD_DURATION 1000
 #define _WIN32_WINNT 0x0A00
