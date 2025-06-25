@@ -1,5 +1,6 @@
 .vscode/
-MicMuteListener.exe
-install.bat
-uninstall.bat
-config.ini
+build/
+dist/
+*.exe
+*.bat
+*.ini

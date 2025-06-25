@@ -87,9 +87,6 @@ void ShowOSDText(const std::wstring &text) {
         nullptr, nullptr, wc.hInstance, (LPVOID)&text);
 
     if (hwnd) {
-        // Initialize in CreateWindowEx()
-        //LONG_PTR exStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
-        //SetWindowLongPtr(hwnd, GWL_EXSTYLE, exStyle | WS_EX_TRANSPARENT);
         SetLayeredWindowAttributes(hwnd, 0, 220, LWA_ALPHA);
         ShowWindow(hwnd, SW_SHOWNOACTIVATE);
         UpdateWindow(hwnd);

@@ -1,13 +1,12 @@
 #include <windows.h>
+#include "MicMuteListener.h"
+#include "OSDWindow.h"
+#include "TrayIcon.h"
 #include <mmdeviceapi.h>
 #include <endpointvolume.h>
 #include <initguid.h>
 #include <shlwapi.h>
 #include <iostream>
-#include <vector>
-#include <set>
-#include "OSDWindow.h"
-#include "ConfigLoader.h"
 
 static std::vector<std::vector<int>> hotkeyCombos;
 static std::set<int> pressedKeys;
@@ -63,6 +62,7 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
                         triggerTime = now;
                         BOOL isMuted = ToggleMicMute();
                         ShowOSDText(isMuted ? L"Mic is muted" : L"Mic is unmuted");
+                        UpdateTrayIcon(isMuted);
                     }
                     break;
                 }
@@ -74,26 +74,10 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     return CallNextHookEx(nullptr, nCode, wParam, lParam);
 }
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int) {
-    // Load config
-    wchar_t exePath[MAX_PATH];
-    GetModuleFileName(nullptr, exePath, MAX_PATH);
-    PathRemoveFileSpec(exePath);
-    std::wstring configPath = std::wstring(exePath) + L"\\config.ini";
-    hotkeyCombos = LoadHotkeysFromIni(configPath);
-    // Initialize Core Audio COM interface
-    CoInitialize(nullptr);
-    // Set hook
-    HHOOK hHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, nullptr, 0);
-    if (!hHook) return 1;
-    // Keep thread alive
-    MSG msg;
-    while (GetMessage(&msg, nullptr, 0, 0)) {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
+void SetHotkeyCombos(const std::vector<std::vector<int>>& combos) {
+    hotkeyCombos = combos;
+}
 
-    UnhookWindowsHookEx(hHook);
-    CoUninitialize();
-    return 0;
+const std::vector<std::vector<int>>& GetHotkeyCombos() {
+    return hotkeyCombos;
 }

@@ -1,7 +1,5 @@
 #include <windows.h>
 #include "ConfigLoader.h"
-#include <string>
-#include <vector>
 #include <sstream>
 #include <unordered_map>
 
@@ -55,7 +53,7 @@ static const std::unordered_map<std::wstring, int> vkMap = {
     // Add more as needed
 };
 
-std::vector<std::vector<int>> LoadHotkeysFromIni(const std::wstring& path) {
+std::vector<std::vector<int>> LoadHotkeysFromIni(const std::filesystem::path& path) {
     std::vector<std::vector<int>> hotkeys;
     bool valid;
     for (int i = 1; i <= 3; i++) {
@@ -77,7 +75,7 @@ std::vector<std::vector<int>> LoadHotkeysFromIni(const std::wstring& path) {
         if (valid && !combo.empty()) {
             hotkeys.push_back(combo);
         } else {
-            hotkeys.push_back({VK_F24});
+            //hotkeys.push_back({VK_F24});
         }
     }
     return hotkeys;
