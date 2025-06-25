@@ -6,9 +6,11 @@
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int) {
     // Get path of config and icons
-    std::filesystem::path exePath = std::filesystem::current_path();
-    std::filesystem::path configPath = exePath / "config.ini";
-    std::filesystem::path iconPath = exePath / "icon";
+    wchar_t exePath[MAX_PATH];
+    GetModuleFileNameW(nullptr, exePath, MAX_PATH);
+    std::filesystem::path directory = std::filesystem::path(exePath).parent_path();
+    std::filesystem::path configPath = directory / "config.ini";
+    std::filesystem::path iconPath = directory / "icon";
 
     // Load config
     SetHotkeyCombos(LoadHotkeysFromIni(configPath));

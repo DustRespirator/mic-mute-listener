@@ -16,16 +16,16 @@ cmake --install . --prefix ../dist
 If you want to set autorun you can use Schedule Tasks. Copy and save as a .bat:
 ```cmd
 @echo off
-set "EXEPATH=%~dp0MicMuteListener.exe"
-schtasks /Create /F /TN "MicMuteListener" /TR "\"%EXEPATH%\"" /SC ONLOGON /RL HIGHEST /RU "%USERNAME%"
-echo Create Task MicMuteListener
+set "EXEPATH=%~dp0MicMuteSwitch.exe"
+schtasks /Create /F /TN "MicMuteSwitch" /TR "\"%EXEPATH%\"" /SC ONLOGON /RL HIGHEST /RU "%USERNAME%" /IT
+echo Create Task MicMuteSwitch
 pause
 ```
 and delete the task:
 ```cmd
 @echo off
-schtasks /Delete /F /TN "MicMuteListener"
-echo Delete Task MicMuteListener
+schtasks /Delete /F /TN "MicMuteSwitch"
+echo Delete Task MicMuteSwitch
 pause
 ```
 ## Usage
