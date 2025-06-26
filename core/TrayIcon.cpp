@@ -1,16 +1,19 @@
 #include <windows.h>
 #include "TrayIcon.h"
+#include "MicMuteListener.h"
 #include <shellapi.h>
 #include <gdiplus.h>
 
 using namespace Gdiplus;
 
-extern BOOL ToggleMicMute();
-
 static ULONG_PTR gdiplusToken;
 static NOTIFYICONDATA nid = {};
 static HICON hIconMuted = nullptr;
 static HICON hIconUnmuted = nullptr;
+static HICON hIconMutedLight = nullptr;
+static HICON hIconUnmutedLight = nullptr;
+static HICON hIconMutedDark = nullptr;
+static HICON hIconUnmutedDark = nullptr;
 //static HWND trayHwnd = nullptr;
 static UINT WM_TASKBARCREATED = RegisterWindowMessage(L"TaskbarCreated");
 
@@ -39,6 +42,12 @@ LRESULT CALLBACK TrayWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
                     hwnd,
                     nullptr);
                 DestroyMenu(hMenu);
+            }
+            return 0;
+        }
+        case WM_SETTINGCHANGE: {
+            if (lParam && wcscmp((LPCWSTR)lParam, L"ImmersiveColorSet") == 0) {
+                ApplyThemeIcons(IsDarkTheme());
             }
             return 0;
         }
@@ -85,15 +94,24 @@ bool InitTrayIcon(HINSTANCE hInstance, const std::filesystem::path& path) {
         nullptr, nullptr, hInstance, nullptr);
 
     // Setup tray icon
-    hIconMuted = LoadPngIcon(path / "muted.png");
-    hIconUnmuted = LoadPngIcon(path / "unmuted.png");
-    if (!hIconMuted || !hIconUnmuted) return false;
+    hIconMutedLight = LoadPngIcon(path / "muted_light.png");
+    hIconUnmutedLight = LoadPngIcon(path / "unmuted_light.png");
+    hIconMutedDark = LoadPngIcon(path / "muted_dark.png");
+    hIconUnmutedDark = LoadPngIcon(path / "unmuted_dark.png");
+    if (!hIconMutedLight || !hIconUnmutedLight || !hIconMutedDark || !hIconUnmutedDark) return false;
     nid.cbSize = sizeof(NOTIFYICONDATA);
     nid.hWnd = hwnd;
     nid.uID = 1;
     nid.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP;
     nid.uCallbackMessage = WM_APP + 1;
-    nid.hIcon = hIconUnmuted;
+    if (IsDarkTheme()) {
+        hIconMuted = hIconMutedDark;
+        hIconUnmuted = hIconUnmutedDark;
+    } else {
+        hIconMuted = hIconMutedLight;
+        hIconUnmuted = hIconUnmutedLight;
+    }
+    nid.hIcon = GetMicMuteState() ? hIconMuted : hIconUnmuted;
     wcscpy_s(nid.szTip, L"MicToggleSwitch");
     
     //trayHwnd = hwnd;
@@ -107,7 +125,30 @@ void UpdateTrayIcon(bool isMuted) {
 
 void RemoveTrayIcon() {
     Shell_NotifyIcon(NIM_DELETE, &nid);
+    if (hIconMutedLight) DestroyIcon(hIconMutedLight);
+    if (hIconUnmutedLight) DestroyIcon(hIconUnmutedLight);
+    if (hIconMutedDark) DestroyIcon(hIconMutedDark);
+    if (hIconUnmutedDark) DestroyIcon(hIconUnmutedDark);
     if (hIconMuted) DestroyIcon(hIconMuted);
     if (hIconUnmuted) DestroyIcon(hIconUnmuted);
     GdiplusShutdown(gdiplusToken);
+}
+
+void ApplyThemeIcons(bool isDarkTheme) {
+    hIconMuted = isDarkTheme ? hIconMutedDark : hIconMutedLight;
+    hIconUnmuted = isDarkTheme ? hIconUnmutedDark : hIconUnmutedLight;
+    UpdateTrayIcon(GetMicMuteState());
+}
+
+bool IsDarkTheme() {
+    DWORD value = 1;
+    HKEY hKey;
+    if (RegOpenKeyEx(HKEY_CURRENT_USER,
+        L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+        0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+        DWORD size = sizeof(DWORD);
+        RegQueryValueEx(hKey, L"SystemUsesLightTheme", nullptr, nullptr, (LPBYTE)&value, &size);
+        RegCloseKey(hKey);
+    }
+    return value == 0; // 1 == light, 0 == dark
 }

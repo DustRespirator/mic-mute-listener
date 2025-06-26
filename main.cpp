@@ -16,6 +16,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int) {
     SetHotkeyCombos(LoadHotkeysFromIni(configPath));
     // Initialize Core Audio COM interface
     CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+    CheckMicMute();
     // Initialize tray icon
     InitTrayIcon(hInstance, iconPath);
     // Set hook

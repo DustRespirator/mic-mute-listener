@@ -10,6 +10,7 @@
 
 static std::vector<std::vector<int>> hotkeyCombos;
 static std::set<int> pressedKeys;
+static BOOL micMuteState = FALSE;
 
 // Check if the hotkeys are pressed
 BOOL IsHotkeyPressed(const std::vector<int>& combo, const std::set<int>& pressed) {
@@ -39,13 +40,40 @@ BOOL ToggleMicMute() {
             if (SUCCEEDED(hr)) {
                 pVolume->GetMute(&bMute);
                 pVolume->SetMute(!bMute, nullptr);
+                micMuteState = !bMute;
                 pVolume->Release();
             }
             pDevice->Release();
         }
         pEnumerator->Release();
     }
-    return !bMute;
+    return micMuteState;
+}
+
+// Check mute/unmute state only, for initializing icon
+void CheckMicMute() {
+    HRESULT hr;
+    BOOL bMute;
+
+    IMMDeviceEnumerator* pEnumerator = nullptr;
+    IMMDevice* pDevice = nullptr;
+    IAudioEndpointVolume* pVolume = nullptr;
+
+    hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&pEnumerator);
+
+    if (SUCCEEDED(hr)) {
+        hr = pEnumerator->GetDefaultAudioEndpoint(eCapture, eCommunications, &pDevice);
+        if (SUCCEEDED(hr)) {
+            hr = pDevice->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, nullptr, (void**)&pVolume);
+            if (SUCCEEDED(hr)) {
+                pVolume->GetMute(&bMute);
+                micMuteState = bMute;
+                pVolume->Release();
+            }
+            pDevice->Release();
+        }
+        pEnumerator->Release();
+    }
 }
 
 // Callback function
@@ -80,4 +108,8 @@ void SetHotkeyCombos(const std::vector<std::vector<int>>& combos) {
 
 const std::vector<std::vector<int>>& GetHotkeyCombos() {
     return hotkeyCombos;
+}
+
+bool GetMicMuteState() {
+    return micMuteState;
 }
