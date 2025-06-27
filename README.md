@@ -2,6 +2,8 @@
 
 A lightweight tool to set hotkeys for toggling mute/unmute mic on Windows. Only a simple popup.
 
+Free icon by [Yogi Aprelliyanto](https://www.flaticon.com/search?author_id=487&style_id=&type=standard&word=Microphone)
+
 ## Installation
 
 Download and compile it. Get [Mingw-w64](https://www.mingw-w64.org/) if you do not have a compilation environment.

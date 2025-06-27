@@ -1,19 +1,20 @@
 cmake_minimum_required(VERSION 3.14)
 project(MicMuteSwitch)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include_directories(core)
+include_directories(include)
 
 add_definitions(-DUNICODE -D_UNICODE)
 
 add_executable(MicMuteSwitch
-    main.cpp
-    core/ConfigLoader.cpp
-    core/MicMuteListener.cpp
-    core/OSDWindow.cpp
-    core/TrayIcon.cpp
+    src/main.cpp
+    src/ConfigLoader.cpp
+    src/MicMuteListener.cpp
+    src/OSDWindow.cpp
+    src/TrayIcon.cpp
+    resources.rc
 )
 
 target_link_libraries(MicMuteSwitch
@@ -28,6 +29,6 @@ target_link_libraries(MicMuteSwitch
 
 install(TARGETS MicMuteSwitch DESTINATION .)
 install(FILES config.ini DESTINATION .)
-install(DIRECTORY icon/ DESTINATION icon)
+install(DIRECTORY assets/icon/ DESTINATION icon)
 
 target_link_options(MicMuteSwitch PRIVATE -municode -mwindows)

@@ -7,7 +7,7 @@
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int) {
     // Get path of config and icons
     wchar_t exePath[MAX_PATH];
-    GetModuleFileNameW(nullptr, exePath, MAX_PATH);
+    GetModuleFileName(nullptr, exePath, MAX_PATH);
     std::filesystem::path directory = std::filesystem::path(exePath).parent_path();
     std::filesystem::path configPath = directory / "config.ini";
     std::filesystem::path iconPath = directory / "icon";
