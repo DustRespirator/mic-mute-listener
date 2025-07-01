@@ -10,3 +10,5 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
 void SetHotkeyCombos(const std::vector<std::vector<int>>& combos);
 const std::vector<std::vector<int>>& GetHotkeyCombos();
 bool GetMicMuteState();
+bool InitMicVolumeCallback();
+void UninitMicVolumeCallback();

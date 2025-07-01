@@ -10,8 +10,10 @@ add_definitions(-DUNICODE -D_UNICODE)
 
 add_executable(MicMuteSwitch
     src/main.cpp
+    src/ConfigManager.cpp
     src/ConfigLoader.cpp
     src/MicMuteListener.cpp
+    src/MicVolumeCallback.cpp
     src/OSDWindow.cpp
     src/TrayIcon.cpp
     resources.rc

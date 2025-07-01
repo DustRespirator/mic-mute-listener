@@ -1,6 +1,6 @@
-#include <windows.h>
-#include "TrayIcon.h"
+#include "ConfigManager.h"
 #include "MicMuteListener.h"
+#include "TrayIcon.h"
 #include <shellapi.h>
 #include <gdiplus.h>
 
@@ -30,6 +30,9 @@ LRESULT CALLBACK TrayWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
             }
             if (lParam == WM_RBUTTONUP) {
                 HMENU hMenu = CreatePopupMenu();
+                AppendMenu(hMenu, MF_STRING, 101, L"Open Config File");
+                AppendMenu(hMenu, MF_STRING, 102, L"Reload Config");
+                AppendMenu(hMenu, MF_STRING, 0, nullptr);
                 AppendMenu(hMenu, MF_STRING, 1, L"Exit");
 
                 POINT pt;
@@ -52,8 +55,19 @@ LRESULT CALLBACK TrayWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
             return 0;
         }
         case WM_COMMAND: {
-            if (LOWORD(wParam) == 1) {
-                PostQuitMessage(0);
+            switch (LOWORD(wParam)) {
+                case 101: {
+                    ShellExecute(nullptr, L"open", L"config.ini", nullptr, nullptr, SW_SHOW);
+                    break;
+                }
+                case 102: {
+                    ReloadConfig();
+                    break;
+                }
+                case 1: {
+                    PostQuitMessage(0);
+                    break;
+                }
             }
             return 0;
         }
@@ -115,6 +129,11 @@ bool InitTrayIcon(HINSTANCE hInstance, const std::filesystem::path& path) {
     wcscpy_s(nid.szTip, L"MicToggleSwitch");
     
     //trayHwnd = hwnd;
+    int retry = 20;
+    while (!IsTaskbarReady()) {
+        Sleep(200);
+        retry--;
+    }
     return Shell_NotifyIcon(NIM_ADD, &nid);
 }
 
@@ -151,4 +170,9 @@ bool IsDarkTheme() {
         RegCloseKey(hKey);
     }
     return value == 0; // 1 == light, 0 == dark
+}
+
+bool IsTaskbarReady() {
+    HWND hTray = FindWindow(L"Shell_TrayWnd", nullptr);
+    return hTray != nullptr && IsWindowVisible(hTray);
 }

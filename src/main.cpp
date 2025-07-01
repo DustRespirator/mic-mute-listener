@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "MicMuteListener.h"
 #include "ConfigLoader.h"
+#include "ConfigManager.h"
 #include "TrayIcon.h"
 #include <filesystem>
 
@@ -14,9 +15,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int) {
 
     // Load config
     SetHotkeyCombos(LoadHotkeysFromIni(configPath));
+    // Initialize watching config file path
+    StartWatchingConfig(configPath);
+    SetConfigReloadCallback(SetHotkeyCombos);
     // Initialize Core Audio COM interface
     CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
     CheckMicMute();
+    // Register volume change callback
+    InitMicVolumeCallback();
     // Initialize tray icon
     InitTrayIcon(hInstance, iconPath);
     // Set hook
@@ -29,6 +35,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int) {
         DispatchMessage(&msg);
     }
 
+    UninitMicVolumeCallback();
+    StopWatchingConfig();
     UnhookWindowsHookEx(hHook);
     CoUninitialize();
     return 0;

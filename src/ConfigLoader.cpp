@@ -1,4 +1,3 @@
-#include <windows.h>
 #include "ConfigLoader.h"
 #include <sstream>
 #include <unordered_map>

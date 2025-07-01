@@ -8,3 +8,4 @@ void UpdateTrayIcon(bool isMuted);
 void RemoveTrayIcon();
 void ApplyThemeIcons(bool isDarkTheme);
 bool IsDarkTheme();
+bool IsTaskbarReady();
